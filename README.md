@@ -13,7 +13,7 @@ We evaluate eight different disassembly tools. They are
 - [Hopper(version 4.5.13](https://www.hopperapp.com/)
 - [IDA Pro (version7.3)](https://www.hex-rays.com/products/ida/)
 
-Each tool has different method to extract the disassembly result. We read the manual carefully and write a script for each tool to extract the disassembly result. The detail script are listed in [Adapters](ttps://github.com/valour01/arm_disasssembler_study/adapter).  The code of evaluating the efficiency of different tools are also integrated into the adapters of each tool.
+Each tool has different method to extract the disassembly result. We read the manual carefully and write a script for each tool to extract the disassembly result. The detail script are listed in [Adapters](https://github.com/valour01/arm_disasssembler_study/tree/master/adapter).  The code of evaluating the efficiency of different tools are also integrated into the adapters of each tool.
 
 # Dataset 
 The file `dataset.zip` contains the dataset we used in our experiments. However, due to the licensing issues, we cannot share the binaries compiled from [SPEC CPU® 2006](https://www.spec.org/cpu2006/) directly.
@@ -22,14 +22,14 @@ You can take the following tips to build the SPEC CPU 2006 by yourselves. Feel f
 
 - Prepare the [SPEC CPU® 2006](https://www.spec.org/cpu2006/)
 - Install SPEC CPU® 2006 by following the [documentation](https://www.spec.org/cpu2006/Docs/install-guide-unix.html)
-- I provided two template configuration files (i.e., [clang.cfg](https://github.com/valour01/arm_disasssembler_study/spec2006/clang.cfg) and [gcc.cfg](https://github.com/valour01/arm_disasssembler_study/spec2006/gcc.cfg)) for GCC and Clang, respectively. You can change the configuration files for different compiling options.
+- I provided two template configuration files (i.e., [clang.cfg](https://github.com/valour01/arm_disasssembler_study/blob/master/spec2006/clang.cfg) and [gcc.cfg](https://github.com/valour01/arm_disasssembler_study/blob/master/spec2006/gcc.cfg)) for GCC and Clang, respectively. You can change the configuration files for different compiling options.
 - Use the command `runspec --config=/path/to/config/gcc.cfg --action=build --rebuild --tune=base binary name` to build every single binary.
 - You can glue all of them with your own python or shell script.
 
 If you use the related script, dataset or the insights we observed in our paper. Please considering cite our paper.
 
 # Ground Truth
-[truth.py](https://github.com/valour01/arm_disasssembler_study/truth.py) is the file to extract the ground truth from a binary with debugging information.
+[truth.py](https://github.com/valour01/arm_disasssembler_study/blob/master/truth.py) is the file to extract the ground truth from a binary with debugging information.
 
 ```
 @inproceedings{10.1145/3395363.3397377,
