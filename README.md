@@ -29,7 +29,7 @@ You can take the following tips to build the SPEC CPU 2006 by yourselves. Feel f
 If you use the related script, dataset or the insights we observed in our paper. Please considering cite our paper.
 
 # Ground Truth
-[truth.py] is the file to extract the ground truth from a binary with debugging information.
+[truth.py](https://github.com/valour01/arm_disasssembler_study/truth.py) is the file to extract the ground truth from a binary with debugging information.
 
 ```
 @inproceedings{10.1145/3395363.3397377,
