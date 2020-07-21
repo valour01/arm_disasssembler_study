@@ -16,7 +16,7 @@ We evaluate eight different disassembly tools. They are
 Each tool has different method to extract the disassembly result. We read the manual carefully and write a script for each tool to extract the disassembly result. The detail script are listed in [Adapters](https://github.com/valour01/arm_disasssembler_study/tree/master/adapter).  The code of evaluating the efficiency of different tools are also integrated into the adapters of each tool.
 
 # Dataset 
-The file `dataset.zip` contains the dataset we used in our experiments. However, due to the licensing issues, we cannot share the binaries compiled from [SPEC CPU® 2006](https://www.spec.org/cpu2006/) directly.
+[Dataset](https://github.com/valour01/arm_disasssembler_study/tree/master/dataset) contains the dataset we used in our experiments. However, due to the licensing issues, we cannot share the binaries compiled from [SPEC CPU® 2006](https://www.spec.org/cpu2006/) directly.
 
 You can take the following tips to build the SPEC CPU 2006 by yourselves. Feel free if you have any questions. 
 
@@ -26,10 +26,14 @@ You can take the following tips to build the SPEC CPU 2006 by yourselves. Feel f
 - Use the command `runspec --config=/path/to/config/gcc.cfg --action=build --rebuild --tune=base binary name` to build every single binary.
 - You can glue all of them with your own python or shell script.
 
-If you use the related script, dataset or the insights we observed in our paper. Please considering cite our paper.
+
 
 # Ground Truth
 [truth.py](https://github.com/valour01/arm_disasssembler_study/blob/master/truth.py) is the file to extract the ground truth from a binary with debugging information.
+
+
+# Citation
+If you use the related script, dataset or the insights we observed in our paper. Please considering cite our paper.
 
 ```
 @inproceedings{10.1145/3395363.3397377,
