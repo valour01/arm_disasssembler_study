@@ -4,14 +4,14 @@ This is the repository for paper "An Empirical Study on ARM Disassembly Tools" a
 
 # Tools
 We evaluate eight different disassembly tools. They are 
-- [angr(version 8.19.4.5)](https://angr.io/) 
-- [BAP(version 1.6.0)](https://github.comBinaryAnalysisPlatform/bap)
+- [angr (version 8.19.4.5)](https://angr.io/) 
+- [BAP (version 1.6.0)](https://github.comBinaryAnalysisPlatform/bap)
 - [Objdump (version 2.30)](https://linux.die.net/man/1/objdump)
-- [Ghidra (version9.0.4)](https://ghidra-sre.org/)
+- [Ghidra (version 9.0.4)](https://ghidra-sre.org/)
 - [Radare2 (version 3.6.0)](https://www.radare.org/n/radare2.html)
 - [Binary Ninja (version 1.1.1470)](https://binary.ninja/) 
-- [Hopper(version 4.5.13](https://www.hopperapp.com/)
-- [IDA Pro (version7.3)](https://www.hex-rays.com/products/ida/)
+- [Hopper (version 4.5.13)](https://www.hopperapp.com/)
+- [IDA Pro (version 7.3)](https://www.hex-rays.com/products/ida/)
 
 Each tool has different method to extract the disassembly result. We read the manual carefully and write a script for each tool to extract the disassembly result. The detail script are listed in [Adapters](https://github.com/valour01/arm_disasssembler_study/tree/master/adapter).  The code of evaluating the efficiency of different tools are also integrated into the adapters of each tool.
 
