@@ -5,96 +5,96 @@ import time
 
 from elftools.elf.elffile import ELFFile
 from Monitor2 import Monitor
+from utils import *
 
+info_display = False
 
 class RadareAdapter:
+    # def __init__(self,bin_path,thumb):
     def __init__(self,bin_path):
         self.bin_path = bin_path
         self.thumb = 0
 
-    def get_insts(self,vsize,vaddr):
-        results = {}
-        batch_size = 30000
-        start_addr = vaddr
-        while start_addr < vsize+vaddr:
-            size = batch_size
-            if vsize + vaddr - start_addr < batch_size:
-                size = vsize +vaddr - start_addr
-            disa_cmd = "pDj "+str(size)+" @"+str(start_addr)
-            print disa_cmd
-            inst_results = self.r.cmd(disa_cmd)
-            insts = json.loads(inst_results)
-            if size < batch_size:
-                length = len(insts)
-            else:
-                length = len(insts) -1
-            for i in range(length):
-                inst = insts[i]
-                inst_addr = inst["offset"]
-                results[inst_addr] = {}
-                results[inst_addr]["size"] = inst["size"]
-                if "disasm" not in inst.keys():
-                    if inst["type"] == "invalid":
-                        results[inst_addr]["disasm"] = "invalid"
-                else:
-                    results[inst_addr]["disasm"] = inst["disasm"]
-                start_addr = inst["offset"] + inst["size"]
-        return results
-
-
     def get_result(self):
-        print ("Radare get the result of %s"%self.bin_path)
+        OKF("Radare get the result of %s"%self.bin_path)
         result = {}
         result["instruction"] = {}
         result["function"] = {}
+        result["cfg"] = {}
+        result["cg"] = {}
         all_insts = {}
-        self.r = r2pipe.open(self.bin_path)
-        sections = self.r.cmd('iSj')
-        with open(self.bin_path,"rb") as f:
-            elf = ELFFile(f)
-            entry = elf.header.e_entry
-            if entry %2 == 1:
-                self.thumb = 1
-
+        r = r2pipe.open(self.bin_path)
+        sections = r.cmd('iSj')
         if self.thumb == 1:
-            print("IS thumb at entry")
-            self.r.cmd('ahb 16')
-            self.r.cmd('e asm.bits = 16')
-        self.r.cmd('e anal.bb.maxsize = 1000000')
-        monitor = Monitor(2*60*60,self.bin_path,".radare_aa")
+            r.cmd('ahb 16')
+            r.cmd('e asm.bits = 16')
+        r.cmd('e anal.bb.maxsize = 1000000')
+        monitor = Monitor("radare2", self.bin_path, 2*60*60, ".radare_aaaa2")
+        # monitor = Monitor(2*60*60,  self.bin_path,  ".radare_aaa")
         monitor.start()
-        self.r.cmd('aaa')
+        r.cmd('aaaa')
         monitor.should_stop = True
         monitor.end_time = time.time() 
         monitor.join()
-        print ("finish the init analysis of %s"%self.bin_path)
-        
-        try:
-            for s in json.loads(sections):
-                if 'x' in s['perm']:
-                    vaddr = s['vaddr']
-                    vsize = s['vsize']
-                    results = self.get_insts(vsize,vaddr)
-                    all_insts.update(results)
-        except:
-            os.system("echo 1>"+self.bin_path+".radare_aa.error")
-            return None
+        OKF("finish the init analysis of %s" % self.bin_path)
 
-   
-        func_result = self.r.cmd('afl')
+        return 1
+        
+        for s in json.loads(sections):
+            if 'x' in s['perm']:
+                vaddr = s['vaddr']
+                vsize = s['vsize']
+                inst_result=r.cmd("pDj " +str(vsize)+" @" +str(vaddr))
+                insts = json.loads(inst_result)
+                for inst in insts:
+                    inst_addr = inst["offset"]
+                    all_insts[inst_addr] = {}
+                    all_insts[inst_addr]["size"] = inst["size"]
+                    if "disasm" not in inst.keys():
+                        if inst["type"] == "invalid":
+                            all_insts[inst_addr]["disasm"] = "invalid"
+                    else:
+                        all_insts[inst_addr]["disasm"] = inst["disasm"]
+                    # print(f"instruction at {hex(inst_addr)}, size: {inst['size']}, disasm: {all_insts[inst_addr]['disasm']}")
+
+        func_details = {}
+        cfg_nodes = []
+        cfg_edges = []
+        func_result = r.cmd('afl')
         for i in func_result.split("\n"):
             addr =  i.split(" ")[0]
             if addr.startswith("0x"):
                 addr = int(addr,16)
                 result["function"][addr] = {}
-                
+                func_info = r.cmd('afi @'+str(addr))
+                # print(func_info)
+                result["function"][addr]["arg_num"] = get_arg_num(func_info,addr)
+                size, bits = get_length_mode(func_info,addr)
+                result["function"][addr]["size"] = size
+                result["function"][addr]["bits"] = bits
+                INFOF(f'function at {hex(addr)}, arg_num: {result["function"][addr]["arg_num"]}, size: {size}, bits: {bits}')
+                func_cfg = r.cmd('agfj @'+str(addr))
+                edges,nodes = get_cfg(func_cfg)
+                cfg_edges = cfg_edges + edges
+                cfg_nodes = cfg_nodes + nodes
+        result["cfg"]["node"] = cfg_nodes
+        result["cfg"]["edge"] = cfg_edges
 
+        cg_result = r.cmd('agCd')
+        cg = analysis_cg(cg_result)
+        result["cg"]["edge"] = cg
         result["instruction"]["detail"] = all_insts
 
-        self.r.quit()
-        print ("Radare finish the result of %s"%self.bin_path)
+        r.quit()
+        OKF("Radare finish the result of %s"%self.bin_path)
         return result
 
+def analysis_inst(result):
+    inst = []
+    all = json.loads(result)
+    for i in range(len(all)):
+        inst.append(all[i]["offset"])
+    return inst
 
 def analysis_func(result):
     func = []
@@ -124,6 +124,30 @@ def get_length_mode(result,offset):
                 bits = l.split(":")[1].strip()
     return size, bits
 
+def get_cfg(result):
+    edges= []
+    nodes = []
+    raw_json = json.loads(result)
+    if len(raw_json) == 0:
+        return edges,nodes
+    cfg_json = raw_json[0]
+    for b in cfg_json["blocks"]:
+        nodes.append(b["offset"])
+        if "jump" in b.keys():
+            edges.append(str(b["offset"])+'->'+str(b["jump"]))
+        if "fail" in b.keys():
+            edges.append(str(b["offset"])+"->"+str(b["fail"]))
+    return edges,nodes
+
+def analysis_cg(result):
+    cg= []
+    for l in result.split("\n"):
+        if "->" in l:
+            caller = int(l.split("->")[0].strip()[1:-1],16)
+            callee = int(l.split("->")[1].strip().split(" ")[0].strip()[1:-1],16)
+            cg.append(str(caller)+"->"+str(callee))
+    return cg
+
 
 def get_va_size(section):
     result = []
@@ -132,9 +156,11 @@ def get_va_size(section):
             result.append(attr)
     return result[3],result[2]
 
+
+
 if __name__ == "__main__":
     radareadapter = RadareAdapter("/path/to/binary")
     result = radareadapter.get_result()
-
-
+    
+    # print(result)
 

@@ -2,7 +2,7 @@ import os
 import shutil
 import time
 from Monitor3 import Monitor
-
+from utils import *
 
 
 class GhidraAdapter:
@@ -16,8 +16,9 @@ class GhidraAdapter:
     def get_result(self):
         self.get_raw_result()
         if not os.path.isfile(self.bin_path+self.ghidra_raw_suffix):
+            ERRORF(f"ghidra analysis {self.bin_path} failed.")
             return None
-        print "anaylsis the raw data of %s" % (self.bin_path+self.ghidra_raw_suffix)
+        OKF("anaylsis the raw data of %s" % (self.bin_path+self.ghidra_raw_suffix))
         f = open(self.bin_path+self.ghidra_raw_suffix)
         result = {}
         result["instruction"] = {}
@@ -30,6 +31,9 @@ class GhidraAdapter:
             if "Function" in l:
                 func_addr = int(l.strip().split("|")[0].split(":")[1],16)
                 result["function"][func_addr] = {}
+                result["function"][func_addr]["param"] = int(l.strip().split("|")[1].split(":")[1],16)
+                result["function"][func_addr]["rettype"] = l.strip().split("|")[2].split(":")[1]
+                INFOF(f"function at {hex(func_addr)}, param: {result['function'][func_addr]['param']}, rettype: {result['function'][func_addr]['rettype']}")
                 continue
             if "Inst" in l:
                 inst = int(l.split("|")[1].split(":")[1],16)
@@ -40,20 +44,21 @@ class GhidraAdapter:
                     arm_codes.append(inst)
                 all_insts[inst] = {}
                 all_insts[inst]["size"] = l.split("|")[2].split(":")[1]
-                all_insts[inst]["disasm"] = l.split("|")[3][7:]
+                all_insts[inst]["disasm"] = l.split("|")[3][7:].strip()
+                INFOF(f"instruction at {hex(inst)}, size: {all_insts[inst]['size']}, disasm: {all_insts[inst]['disasm']}")
         result["instruction"]["arm"] = arm_codes
         result["instruction"]["thumb"] = thumb_codes
         result["instruction"]["detail"] = all_insts
 
-        print "ghidra finish generates the result of %s"%self.bin_path
+        OKF("ghidra finish generates the result of %s" % self.bin_path)
         return result
 
 
     def get_raw_result(self):
         if os.path.isfile(self.bin_path+self.ghidra_raw_suffix) and os.path.isfile(self.bin_path+self.ghidra_raw_suffix+".monitor3_cpu"):
-            print "ghidra already analyzed %s"%self.bin_path
+            OKF("ghidra already analyzed %s"%self.bin_path)
             return
-        print "ghidra generate the raw result of %s"% self.bin_path
+        OKF("ghidra generate the raw result of %s"% self.bin_path)
         self.ghidra_project_path = self.bin_path+".ghidra_project"
         if os.path.isdir(self.ghidra_project_path):
             os.system("rm -rf "+self.ghidra_project_path)
@@ -64,7 +69,7 @@ class GhidraAdapter:
         #if os.path.isfile(os.path.join(self.ghidra_project_path, os.path.basename(self.bin_path)+".rep")):
         #    os.remove(os.path.join(self.ghidra_project_path,os.path.basename(self.bin_path)+".rep"))
         cmd = self.ghidra_path + "  "+ self.ghidra_project_path +"  "+os.path.basename(self.bin_path) +" -import  "+self.bin_path + " -scriptPath "+os.path.dirname(self.ghidra_script_name) + " -postScript  "+os.path.basename(self.ghidra_script_name)+ "  "+self.ghidra_raw_suffix+" -deleteProject"
-        print cmd
+        OKF(f"Ghidra CMD: {cmd}")
         if os.path.isfile(self.bin_path+self.ghidra_raw_suffix+".monitor3_ts"):
             os.system("rm "+self.bin_path+self.ghidra_raw_suffix+".monitor3_ts")
         monitor = Monitor("java",self.bin_path,2*60*60,".ghidra_raw")

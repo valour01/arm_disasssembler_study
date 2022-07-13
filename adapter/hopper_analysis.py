@@ -7,6 +7,10 @@ os.system("echo "+str(time.time())+" >"+doc.getExecutableFilePath()+".hopper.mon
 seg_list = doc.getSegmentsList()
 
 funcs = []
+funcs_sig = []
+cfg_nodes = []
+cfg_edges = []
+cg_edges = []
 arm_codes = []
 thumb_codes = []
 all_insts = {}
@@ -34,6 +38,10 @@ for seg in seg_list:
                 except:
                     addr +=1
                     continue 
+                #if inst.getArchitecture() == 4:
+                #    thumb_codes.append(addr)
+                #if inst.getArchitecture() == 3:
+                #    arm_codes.append(addr)
                 inst_len = inst.getInstructionLength()
                 all_insts[addr]["size"] = inst_len
                 all_insts[addr]["disasm"] = inst.getInstructionString()
@@ -53,5 +61,7 @@ for seg in seg_list:
 result["instruction"]["arm"] = arm_codes
 result["instruction"]["thumb"] = thumb_codes
 result["instruction"]["detail"] = all_insts
+print(result)
 pickle.dump(result,open(doc.getExecutableFilePath()+".hopper_test","w"))
+exit(0)
 exit(1)
