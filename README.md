@@ -1,17 +1,17 @@
 # An Empirical Study on ARM Disassembly Tools
-This is the repository for paper "An Empirical Study on ARM Disassembly Tools" accepted to ISSTA 2020
+This is the repository for paper "An Empirical Study on ARM Disassembly Tools" accepted to ISSTA 2020 and the paper "A Comprehensive Study on ARM Disassembly Tools" accepted to TSE 2022.
 
 
 # Tools
-We evaluate eight different disassembly tools. They are 
-- [angr (version 8.19.4.5)](https://angr.io/) 
-- [BAP (version 1.6.0)](https://github.comBinaryAnalysisPlatform/bap)
-- [Objdump (version 2.30)](https://linux.die.net/man/1/objdump)
-- [Ghidra (version 9.0.4)](https://ghidra-sre.org/)
-- [Radare2 (version 3.6.0)](https://www.radare.org/n/radare2.html)
-- [Binary Ninja (version 1.1.1470)](https://binary.ninja/) 
-- [Hopper (version 4.5.13)](https://www.hopperapp.com/)
-- [IDA Pro (version 7.3)](https://www.hex-rays.com/products/ida/)
+We evaluate eight different disassembly tools in three different versions across around 2 years. They are 
+- [angr (version 8.19.4.5), (version 9.0.4663), (version 9.0.10534)](https://angr.io/) 
+- [BAP (version 1.6.0), (version 2.1.0), (version 2.3.0)](https://github.comBinaryAnalysisPlatform/bap)
+- [Objdump (version 2.30), (version 2.34), (version 2.37)](https://linux.die.net/man/1/objdump)
+- [Ghidra (version 9.0.4), (version 9.1.2), (version 10.0.4)](https://ghidra-sre.org/)
+- [Radare2 (version 3.6.0), (version 5.0.0), (version 5.4.2)](https://www.radare.org/n/radare2.html)
+- [Binary Ninja (version 1.1.1470), (version 2.2.2487), (version 2.4.2846)](https://binary.ninja/) 
+- [Hopper (version 4.5.13), (version 4.5.29), (version 5.1.3)](https://www.hopperapp.com/)
+- [IDA Pro (version 7.3), (version 7.5), (version 7.6)](https://www.hex-rays.com/products/ida/)
 
 Each tool has different method to extract the disassembly result. We read the manual carefully and write a script for each tool to extract the disassembly result. The detail script are listed in [Adapters](https://github.com/valour01/arm_disasssembler_study/tree/master/adapter).  The code of evaluating the efficiency of different tools are also integrated into the adapters of each tool.
 
@@ -51,5 +51,15 @@ numpages = {14},
 keywords = {Empirical Study, Disassembly Tools, ARM Architecture},
 location = {Virtual Event, USA},
 series = {ISSTA 2020}
+}
+```
+
+```
+@article{jiang2022comprehensive,
+  title={A Comprehensive Study on ARM Disassembly Tools},
+  author={Jiang, Muhui and Dai, Qinming and Zhang, Wenlong and Chang, Rui and Zhou, Yajin and Luo, Xiapu and Wang, Ruoyu and Liu, Yang and Ren, Kui},
+  journal={IEEE Transactions on Software Engineering},
+  year={2022},
+  publisher={IEEE}
 }
 ```
